@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ContatoFirebaseService } from 'src/app/services/contato-firebase.service';
 import { Contato } from '../../models/contato';
-import { ContatosService } from '../../services/contatos.service';
 
 
 @Component({
@@ -13,8 +13,16 @@ export class HomePage {
   contatos : Contato[];
 
   constructor(private router: Router,
-    private contatoService: ContatosService) {
-      this.contatos = this.contatoService.contatos;
+    private contatoService: ContatoFirebaseService) {
+      this.contatoService.getContatos()
+      .subscribe(resp=> {
+        this.contatos = resp.map(contato=>{
+          return{
+            id : contato.payload.doc.id,
+            ...contato.payload.doc.data() as Contato
+          }as Contato
+        });
+      });
   }
 
   irParaCadastroPage(): void{

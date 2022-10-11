@@ -2,10 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
-import { TouchSequence } from 'selenium-webdriver';
-import { Contato } from '../../models/contato';
-import { ContatosService } from '../../services/contatos.service';
+import { AlertController, LoadingController } from '@ionic/angular';
+import { ContatoFirebaseService } from 'src/app/services/contato-firebase.service';
+
 
 @Component({
   selector: 'app-cadastro',
@@ -17,8 +16,9 @@ form_cadastrar: FormGroup;
 isSubmitted: boolean = false;
 
   constructor(private alertController: AlertController,
+    private loadingCtrl: LoadingController,
     private router: Router,
-    private contatoService: ContatosService,
+    private contatoService: ContatoFirebaseService,
     private formBuilder: FormBuilder) { }
 
   ngOnInit() {
@@ -46,8 +46,20 @@ isSubmitted: boolean = false;
 
 
   private cadastrar() : void{
-      this.contatoService.inserir(this.form_cadastrar.value);
-      this.router.navigate(['/home']);
+      this.showLoading("Aguarde", 100000);
+      this.contatoService.inserirContato(this.form_cadastrar.value)
+      .then(()=>{
+        this.loadingCtrl.dismiss();
+        this.presentAlert("Agenda", "Cadastrar", "Contato Salvo!");
+        this.router.navigate(['/home']);
+      })
+      .catch((error)=>{
+        console.log(error);
+        this.loadingCtrl.dismiss();
+        this.presentAlert("Agenda", "Cadastrar", "Erro ao salvar Contato!");
+      })
+
+
   }
 
   async presentAlert(titulo : string, subtitulo: string, msg : string) {
@@ -58,6 +70,14 @@ isSubmitted: boolean = false;
       buttons: ['OK'],
     })
         await alert.present();
+  }
+
+  async showLoading(message: string, duracao: number) {
+    const loading = await this.loadingCtrl.create({
+      message: message,
+      duration: duracao,
+    });
+    loading.present();
   }
 
 

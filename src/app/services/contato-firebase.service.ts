@@ -19,19 +19,19 @@ private PATH : string = 'contatos';
   }
 
   inserirContato(contato: Contato){
-    this.angularFirestore.collection(this.PATH).add({
+    return this.angularFirestore.collection(this.PATH).add({
       nome: contato.nome, telefone: contato.telefone,
       genero: contato.genero, data_nascimento: contato.data_nascimento
     });
   }
 
   editarContato(contato: Contato, id: string){
-    this.angularFirestore.collection(this.PATH).doc(id).update({
+   return this.angularFirestore.collection(this.PATH).doc(id).update({
       nome: contato.nome, telefone: contato.telefone,
       genero: contato.genero, data_nascimento: contato.data_nascimento
     });
   }
   excluirContato(id: string){
-    this.angularFirestore.collection(this.PATH).doc(id).delete();
+    return this.angularFirestore.collection(this.PATH).doc(id).delete();
   }
 }

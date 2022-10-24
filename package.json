@@ -22,6 +22,7 @@
     "@angular/router": "^14.0.0",
     "@ionic/angular": "^6.2.4-dev.11660920030.163a18e7",
     "firebase": "^9.10.0",
+    "firebase-tools": "^11.14.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"

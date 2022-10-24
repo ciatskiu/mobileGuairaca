@@ -10,7 +10,11 @@
 
   <ion-list>
     <ion-item-sliding *ngFor = "let item of contatos">
-      <ion-item>Nome: {{item.nome}}</ion-item>
+      <ion-item>
+        <ion-avatar>
+          <img src="{{item.downloadURL}}"/>
+        </ion-avatar> &nbsp; &nbsp;
+        {{item.nome}}</ion-item>
       <ion-item-options side="end">
           <ion-item-option (click)="irParaDetalharPage(item)">
             <ion-icon name="create-outline"></ion-icon>

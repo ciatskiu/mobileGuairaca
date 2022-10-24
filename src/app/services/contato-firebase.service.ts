@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Contato } from '../models/contato';
+import { finalize } from 'rxjs/operators';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +10,8 @@ import { Contato } from '../models/contato';
 export class ContatoFirebaseService {
 private PATH : string = 'contatos';
 
-  constructor(private angularFirestore: AngularFirestore) { }
+  constructor(private angularFirestore: AngularFirestore,
+    private angularFireStorage: AngularFireStorage) { }
 
   getContato(id : string){
     return this.angularFirestore.collection(this.PATH).doc(id).valueChanges();
@@ -21,7 +24,8 @@ private PATH : string = 'contatos';
   inserirContato(contato: Contato){
     return this.angularFirestore.collection(this.PATH).add({
       nome: contato.nome, telefone: contato.telefone,
-      genero: contato.genero, data_nascimento: contato.data_nascimento
+      genero: contato.genero, data_nascimento: contato.data_nascimento,
+      downloadURL: contato.downloadURL
     });
   }
 
@@ -34,4 +38,28 @@ private PATH : string = 'contatos';
   excluirContato(id: string){
     return this.angularFirestore.collection(this.PATH).doc(id).delete();
   }
+
+  enviarImagem(imagem: any, contato: Contato){
+    const file = imagem.item(0);
+    if(file.type.split('/')[0] !== 'image'){
+      console.log("Tipo não Suportado!");
+      return;
+  }
+  const path = `avatar/${new Date().getTime()}_${file.name}`;
+  const fileRef = this.angularFireStorage.ref(path);
+  let task = this.angularFireStorage.upload(path, file);
+
+  task.snapshotChanges().pipe(
+    finalize(()=>{
+      let uploadFileURL = fileRef.getDownloadURL();
+      uploadFileURL.subscribe(resp=>{
+        contato.downloadURL = resp;
+        this.inserirContato(contato);
+      })
+    })
+  ).subscribe()
+  return task;
+}
+
+
 }
